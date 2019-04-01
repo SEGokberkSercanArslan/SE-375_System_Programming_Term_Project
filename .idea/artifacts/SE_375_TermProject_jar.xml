@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SE-375-TermProject:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SE_375_TermProject_jar</output-path>
+    <root id="archive" name="SE-375-TermProject.jar">
+      <element id="module-output" name="SE-375-TermProject" />
+    </root>
+  </artifact>
+</component>

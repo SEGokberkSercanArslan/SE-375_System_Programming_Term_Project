@@ -16,9 +16,10 @@ public class CFClient {
     /*Constructors declaration here*/
     private CFClient(){
         try {
-            client_socket = new Socket(InetAddress.getLocalHost(),12600);
-            input = new DataInputStream(new BufferedInputStream(client_socket.getInputStream()));
-            out = new DataOutputStream(new BufferedOutputStream(client_socket.getOutputStream()));
+            System.out.println(InetAddress.getLocalHost().getHostAddress());
+            client_socket = new Socket(InetAddress.getLocalHost().getHostAddress(),12600);
+            input = new DataInputStream(client_socket.getInputStream());
+            out = new DataOutputStream(client_socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }

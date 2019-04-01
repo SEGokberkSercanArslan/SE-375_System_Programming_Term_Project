@@ -25,11 +25,13 @@ public class CFSRequestHandler implements Runnable{
     /*Function definitions here*/
     @Override
     public void run() {
-        System.out.println(client.getInetAddress());
-        try {
-            System.out.println(input.readUTF());
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (!client.isClosed()) {
+            System.out.println(client.getInetAddress());
+            try {
+                System.out.println(input.readUTF());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
