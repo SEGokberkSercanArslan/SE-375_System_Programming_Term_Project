@@ -1,15 +1,27 @@
 package Client;
 
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class CFClient {
 
     /*Global variable declarations here*/
     private boolean is_active = false;
+    private Socket client_socket;
+    private DataOutputStream out;
+    private DataInputStream input;
 
     /*Constructors declaration here*/
     private CFClient(){
-
+        try {
+            client_socket = new Socket(InetAddress.getLocalHost(),12600);
+            input = new DataInputStream(new BufferedInputStream(client_socket.getInputStream()));
+            out = new DataOutputStream(new BufferedOutputStream(client_socket.getOutputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /*Main programme declaration here*/
@@ -39,7 +51,11 @@ public class CFClient {
     }
 
     private void sign_in(){
-
+        try {
+            out.writeUTF("Hello World");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sign_up(){
