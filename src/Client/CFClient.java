@@ -1,5 +1,11 @@
 package Client;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -12,6 +18,9 @@ public class CFClient {
     private Socket client_socket;
     private DataOutputStream out;
     private DataInputStream input;
+    private DocumentBuilderFactory document_factory;
+    private DocumentBuilder document_builder;
+    private Document document;
 
     /*Constructors declaration here*/
     private CFClient(){
@@ -20,7 +29,12 @@ public class CFClient {
             client_socket = new Socket(InetAddress.getLocalHost().getHostAddress(),12600);
             input = new DataInputStream(client_socket.getInputStream());
             out = new DataOutputStream(client_socket.getOutputStream());
+            document_factory = DocumentBuilderFactory.newInstance();
+            document_builder = document_factory.newDocumentBuilder();
+            document = document_builder.newDocument();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
@@ -60,7 +74,11 @@ public class CFClient {
     }
 
     private void sign_up(){
-
+        try {
+            client_socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

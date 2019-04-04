@@ -3,7 +3,7 @@ package Server;
 import java.io.*;
 import java.net.Socket;
 
-public class CFSRequestHandler implements Runnable{
+public class CFSTCPRequestHandler implements Runnable{
 
     /*Global variable declarations here*/
     private Socket client;
@@ -12,8 +12,9 @@ public class CFSRequestHandler implements Runnable{
 
 
     /*Constructors declaration here*/
-    public CFSRequestHandler(Socket client){
+    public CFSTCPRequestHandler(Socket client){
         this.client = client;
+        System.out.println("Client Connected : " + this.client.getInetAddress().getHostAddress());
         try {
             input = new DataInputStream(new BufferedInputStream(client.getInputStream()));
             out = new DataOutputStream(new BufferedOutputStream(client.getOutputStream()));
@@ -26,15 +27,9 @@ public class CFSRequestHandler implements Runnable{
     @Override
     public void run() {
         while (!client.isClosed()) {
-            System.out.println(client.getInetAddress());
-            try {
-                System.out.println(input.readUTF());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
     }
-
 }
 
     /*Global variable declarations here*/
