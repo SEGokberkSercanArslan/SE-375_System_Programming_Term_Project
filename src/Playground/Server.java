@@ -1,64 +1,73 @@
 package Playground;
 
-// A Java program for a Server
-import java.net.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Server
 {
-    //initialize socket and input stream
-    private Socket          socket   = null;
-    private ServerSocket    server   = null;
-    private DataInputStream in       =  null;
 
-    // constructor with port
-    public Server(int port)
+    private static Socket socket;
+
+    public static void main(String[] args)
     {
-        // starts server and waits for a connection
         try
         {
-            server = new ServerSocket(port);
-            System.out.println("Server started");
 
-            System.out.println("Waiting for a client ...");
+            int port = 25000;
+            ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println("Server Started and listening to the port 25000");
 
-            socket = server.accept();
-            System.out.println("Client accepted");
-
-            // takes input from the client socket
-            in = new DataInputStream(
-                    new BufferedInputStream(socket.getInputStream()));
-
-            String line = "";
-
-            // reads message from client until "Over" is sent
-            while (!line.equals("Over"))
+            //Server is running always. This is done using this while(true) loop
+            while(true)
             {
+                //Reading the message from the client
+                socket = serverSocket.accept();
+                InputStream is = socket.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String number = br.readLine();
+                System.out.println("Message received from client is "+number);
+
+                //Multiplying the number by 2 and forming the return message
+                String returnMessage;
                 try
                 {
-                    line = in.readUTF();
-                    System.out.println(line);
-
+                    int numberInIntFormat = Integer.parseInt(number);
+                    int returnValue = numberInIntFormat*2;
+                    returnMessage = String.valueOf(returnValue) + "\n";
                 }
-                catch(IOException i)
+                catch(NumberFormatException e)
                 {
-                    System.out.println(i);
+                    //Input was not a number. Sending proper message back to client.
+                    returnMessage = "Please send a proper number\n";
                 }
+
+                //Sending the response back to the client.
+                OutputStream os = socket.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(os);
+                BufferedWriter bw = new BufferedWriter(osw);
+                bw.write(returnMessage);
+                System.out.println("Message sent to the client is "+returnMessage);
+                bw.flush();
             }
-            System.out.println("Closing connection");
-
-            // close connection
-            socket.close();
-            in.close();
         }
-        catch(IOException i)
+        catch (Exception e)
         {
-            System.out.println(i);
+            e.printStackTrace();
         }
-    }
-
-    public static void main(String args[])
-    {
-        Server server = new Server(50000);
+        finally
+        {
+            try
+            {
+                socket.close();
+            }
+            catch(Exception e){}
+        }
     }
 }

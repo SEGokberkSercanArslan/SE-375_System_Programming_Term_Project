@@ -1,71 +1,62 @@
 package Playground;
-// A Java program for a Client
-import java.net.*;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 
 public class Client
 {
-    // initialize socket and input output streams
-    private Socket socket            = null;
-    private DataInputStream  input   = null;
-    private DataOutputStream out     = null;
 
-    // constructor to put ip address and port
-    public Client(String address, int port)
-    {
-        // establish a connection
-        try
-        {
-            socket = new Socket(address, port);
-            System.out.println("Connected");
-
-            // takes input from terminal
-            input  = new DataInputStream(System.in);
-
-            // sends output to the socket
-            out    = new DataOutputStream(socket.getOutputStream());
-        }
-        catch(UnknownHostException u)
-        {
-            System.out.println(u);
-        }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
-
-        // string to read message from input
-        String line = "";
-
-        // keep reading until "Over" is input
-        while (!line.equals("Over"))
-        {
-            try
-            {
-                line = input.readLine();
-                out.writeUTF(line);
-            }
-            catch(IOException i)
-            {
-                System.out.println(i);
-            }
-        }
-
-        // close the connection
-        try
-        {
-            input.close();
-            out.close();
-            socket.close();
-        }
-        catch(IOException i)
-        {
-            System.out.println(i);
-        }
-    }
+    private static Socket socket;
 
     public static void main(String args[])
     {
-        Client client = new Client("192.168.1.106", 50000);
+        try
+        {
+            String host = "localhost";
+            int port = 25000;
+            InetAddress address = InetAddress.getByName(host);
+            socket = new Socket(address, port);
+
+            //Send the message to the server
+            OutputStream os = socket.getOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(os);
+            BufferedWriter bw = new BufferedWriter(osw);
+
+            String number = "2";
+
+            String sendMessage = number + "\n";
+            bw.write(sendMessage);
+            bw.flush();
+            System.out.println("Message sent to the server : "+sendMessage);
+
+            //Get the return message from the server
+            InputStream is = socket.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String message = br.readLine();
+            System.out.println("Message received from the server : " +message);
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+        }
+        finally
+        {
+            //Closing the socket
+            try
+            {
+                socket.close();
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }
