@@ -40,14 +40,14 @@ public class CFClient {
     }
 
     /*Main programme declaration here*/
-    public static void main(String[] args) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws Exception {
         CFClient client = new CFClient();
         client.start();
     }
 
     /*Function definitions here*/
 
-    private void start() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+    private void start() throws Exception {
         is_active = true;
         while (is_active){
             Scanner scanner = new Scanner(System.in);
@@ -70,10 +70,58 @@ public class CFClient {
 
     private void sign_in() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
         get_public_key_if_null();
+        //Need a Screen Flush Function Here
+        String username;
+        String password;
+        Scanner scanner = new Scanner(System.in);
+        {
+            System.out.print("Username : ");
+            username = scanner.next();
+            System.out.print("Password : ");
+            password = scanner.next();
+        }
+
     }
 
-    private void sign_up() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+    private void sign_up() throws Exception {
         get_public_key_if_null();
+        //Need a Screen Flush Function Here
+        String username;
+        String password;
+        String secretQuestion;
+        String secretAnswer;
+        Scanner scanner = new Scanner(System.in);
+        {
+            System.out.print("Please select a Username : ");
+            username = scanner.next();
+            System.out.print("Please select a Password : ");
+            password = scanner.next();
+            System.out.print("Please select a Secret Question : ");
+            secretQuestion = scanner.next();
+            System.out.print("Please select Secret Question's Answer : ");
+            secretAnswer = scanner.next();
+        }// Collect Form Information in This Scope
+        factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer));
+        // Check Server Response if username exists or not
+        JSONObject object = new JSONObject(input.readUTF());
+        while (object.get("Type").toString().equals("Error")){
+            System.out.println("Username already exists please choose another one.");
+            System.out.println("For Abort this sign-up process please input : 1");
+            System.out.print("Please select a Username : ");
+            username = scanner.next();
+            if (username.equals("1")){
+                break;
+            }else {
+                factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer));
+                JSONObject response = new JSONObject(input.readUTF());
+                if (response.get("Type").toString().equals("Confirmation")){
+                    if (response.get("Confirmation").toString().equals("Sign-Up")){
+                        System.out.println("Your account created successfully");
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void forget_password() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -85,7 +133,6 @@ public class CFClient {
     }
 
     private void get_public_key_if_null() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-
         if (this.publicKey == null){
             send_json_package(factory.rsa_public_key_request());
             String json_string = input.readUTF();
