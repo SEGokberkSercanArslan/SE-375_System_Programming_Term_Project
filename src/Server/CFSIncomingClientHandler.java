@@ -25,7 +25,8 @@ public class CFSIncomingClientHandler implements Runnable {
                 e.printStackTrace();
             }
         } else {
-            server.getClient_pool().execute(new CFSRequestHandler(client));
+            server.getClient_pool().execute(new CFSRequestHandler(client,server));
         }
     }
+
 }

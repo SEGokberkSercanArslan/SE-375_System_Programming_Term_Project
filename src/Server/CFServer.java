@@ -14,7 +14,7 @@ public class CFServer {
     private ServerSocket server_tcp_socket;
     private ThreadPoolExecutor client_pool;
     private ThreadPoolExecutor incoming_request_pool;
-    private ArrayList<Socket> clients = new ArrayList<Socket>();
+    private ArrayList<CFSClient> clients = new ArrayList<CFSClient>();
     private final int pool_size = 50;
     private final int incoming_pool_size = 5;
 
@@ -35,7 +35,7 @@ public class CFServer {
         server.start();
     }
 
-    /*Function definitions here*/
+    /*Server starter function*/
     private void start(){
         while (true){
             try {
@@ -46,9 +46,11 @@ public class CFServer {
         }
     }
 
+    /*Function definitions here*/
+
     protected boolean is_client_online(Socket client){
         for (int index = 0; index < clients.size(); index++) {
-            if (clients.get(index).getInetAddress().equals(client.getInetAddress())){
+            if (clients.get(index).getClient().getInetAddress().equals(client.getInetAddress())){
                 return true;
             }
         }
@@ -60,8 +62,8 @@ public class CFServer {
         out.writeUTF(json_package);
     }
 
-    public ArrayList<Socket> getClients() {
-        return clients;
+    protected void add_active_client(CFSClient client){
+        clients.add(client);
     }
 
     public ThreadPoolExecutor getClient_pool() {
