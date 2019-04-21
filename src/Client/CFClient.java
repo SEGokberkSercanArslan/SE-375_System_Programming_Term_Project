@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -68,7 +69,7 @@ public class CFClient {
         System.out.println("Thanks for playing Collect Four.");
     }
 
-    private void sign_in() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+    private void sign_in() throws Exception {
         get_public_key_if_null();
         //Need a Screen Flush Function Here
         String username;
@@ -80,7 +81,16 @@ public class CFClient {
             System.out.print("Password : ");
             password = scanner.next();
         }
-
+        send_json_package(factory.sign_in_request(username,encrypt(publicKey,password)));
+        String response = input.readUTF();
+        JSONObject object = new JSONObject();
+        if (object.get("Type").toString().equals("Confirmation")){
+            if (object.get("Confirmation").toString().equals("Sign-In")){
+                while (true){
+                    //Fill here when game object is ready
+                }
+            }
+        }
     }
 
     private void sign_up() throws Exception {
@@ -101,24 +111,34 @@ public class CFClient {
             System.out.print("Please select Secret Question's Answer : ");
             secretAnswer = scanner.next();
         }// Collect Form Information in This Scope
-        factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer));
+        send_json_package(factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer)));
         // Check Server Response if username exists or not
         JSONObject object = new JSONObject(input.readUTF());
+        boolean handled_in_error = false;
         while (object.get("Type").toString().equals("Error")){
             System.out.println("Username already exists please choose another one.");
             System.out.println("For Abort this sign-up process please input : 1");
             System.out.print("Please select a Username : ");
             username = scanner.next();
             if (username.equals("1")){
+                handled_in_error = true;
                 break;
             }else {
-                factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer));
+                send_json_package(factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer)));
                 JSONObject response = new JSONObject(input.readUTF());
                 if (response.get("Type").toString().equals("Confirmation")){
                     if (response.get("Confirmation").toString().equals("Sign-Up")){
                         System.out.println("Your account created successfully");
+                        handled_in_error = true;
                         break;
                     }
+                }
+            }
+        }
+        if (!handled_in_error){
+            if (object.get("Type").toString().equals("Confirmation")){
+                if (object.get("Confirmation").toString().equals("Sign-Up")){
+                    System.out.println("Your account created successfully");
                 }
             }
         }
@@ -126,6 +146,20 @@ public class CFClient {
 
     private void forget_password() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
         get_public_key_if_null();
+        String username;
+        String secretAnswer;
+        Scanner scanner = new Scanner(System.in);
+        username = scanner.next();
+        send_json_package(factory.forget_password_request_phase_1(username));
+        JSONObject phase_1_response = new JSONObject(input.readUTF());
+        if (phase_1_response.get("Type").toString().equals("Response")){
+            if (phase_1_response.get("Response").toString().equals("Forget-Password-Phase-1")){
+
+            }
+        }
+
+
+
     }
 
     private void send_json_package(String json_package) throws IOException {
@@ -140,10 +174,7 @@ public class CFClient {
             if (object.get("Type").toString().equals("Response")){
                 if (object.get("Response").toString().equals("RSA-PUB")){
                     JSONArray array = new JSONArray(object.get("RSA-PUB"));
-                    byte[] keyPub = new byte[array.length()];
-                    for (int index = 0; index < array.length(); index++) {
-                        keyPub[index] = (byte) array.get(index);
-                    }
+                    byte[] keyPub = json_array_to_byte_array(array);
                     publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyPub));
                 }
             }
@@ -151,10 +182,31 @@ public class CFClient {
     }
 
     //Encryption Operations
-    public byte[] encrypt(PublicKey publicKey, String message) throws Exception {
+    private byte[] encrypt(PublicKey publicKey, String message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        return cipher.doFinal(message.getBytes());
+        return cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+    }
+
+    //Decipher Operations
+    private byte[] decrypt(PublicKey publicKey, byte[] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        return cipher.doFinal(encrypted);
+    }
+
+    //UTF-8 Bytes to string operations
+    private String byte_to_string(byte[] decrypted_bytes){
+        return new String(decrypted_bytes,StandardCharsets.UTF_8);
+    }
+
+    //Json Array to byte[]
+    public byte[] json_array_to_byte_array(JSONArray array){
+        byte[] bytes = new byte[array.length()];
+        for (int index = 0; index < array.length(); index++) {
+            bytes[index] = (byte) array.get(index);
+        }
+        return bytes;
     }
 
 }

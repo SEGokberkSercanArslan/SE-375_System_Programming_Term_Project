@@ -3,11 +3,10 @@ package Server;
 import org.json.JSONObject;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -77,10 +76,22 @@ public class CFSRequestHandler implements Runnable{
     }
 
     //Decipher Operations
-    public static byte[] decrypt(PrivateKey privateKey, byte [] encrypted) throws Exception {
+    public byte[] decrypt(PrivateKey privateKey, byte [] encrypted) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return cipher.doFinal(encrypted);
+    }
+
+    //Encryption Operations
+    public byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+        return cipher.doFinal(message.getBytes());
+    }
+
+    //UTF-8 Bytes to string operations
+    public String byte_to_string(byte[] decrypted_bytes){
+        return new String(decrypted_bytes, StandardCharsets.UTF_8);
     }
 
 }

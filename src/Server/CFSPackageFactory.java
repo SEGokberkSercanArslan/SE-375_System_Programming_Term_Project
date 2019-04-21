@@ -1,6 +1,5 @@
 package Server;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class CFSPackageFactory {
@@ -36,11 +35,56 @@ public class CFSPackageFactory {
         return object.toString();
     }
 
-    //Sign-up Confirmation
+    //Phase 1 Password Reset Request Response
+    //Confirmation
+    protected final String phase_1_password_reset_response_package(byte[] secretQuestion){
+        JSONObject object = new JSONObject();
+        object.put("Type","Response");
+        object.put("Response","Forget-Password-Phase-1");
+        object.put("SecretQuestion",secretQuestion);
+        return object.toString();
+    }
+
+    //Error
+    protected final String phase_1_password_reset_invalid_username_package(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Error");
+        object.put("Error","Invalid Username");
+        return object.toString();
+    }
+
+    //Phase 2 Password Reset Request Responses
+    //Confirmation
+    protected final String phase_2_password_reset_response_package(byte[] password){
+        JSONObject object = new JSONObject();
+        object.put("Type","Response");
+        object.put("Response","Forget-Password-Phase-2");
+        object.put("Password",password);
+        return object.toString();
+    }
+
+    //Error Invalid Answer
+    protected final String phase_2_password_reset_invalid_answer_package(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Error");
+        object.put("Error","Invalid Answer");
+        return object.toString();
+    }
+
+    //Sign-Up Confirmation
     protected final String confirmation_package_sign_up(){
         JSONObject object = new JSONObject();
         object.put("Type","Confirmation");
         object.put("Confirmation","Sign-Up");
+        return object.toString();
+    }
+
+    //Sign-In
+    protected String confirmation_package_sign_in(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Confirmation");
+        object.put("Confirmation","Sign-In");
+        //Main menu list will come here in Json Array
         return object.toString();
     }
 

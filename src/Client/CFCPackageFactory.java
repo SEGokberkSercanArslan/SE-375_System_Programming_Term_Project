@@ -29,7 +29,7 @@ public class CFCPackageFactory {
     }
 
     //Sing-In Request
-    protected final String sing_in_request(String username,byte[] password){
+    protected final String sign_in_request(String username,byte[] password){
         JSONObject object = new JSONObject();
         object.put("Type","Request");
         object.put("Request","Sing-Up");
