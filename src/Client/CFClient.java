@@ -55,13 +55,16 @@ public class CFClient {
             int choice = scanner.nextInt();
             System.out.println("0 : Sign-in game");
             System.out.println("1 : Sign-up game");
-            System.out.println("2 : Close the game");
+            System.out.println("2 : Forget Password");
+            System.out.println("3 : Close the game");
             switch (choice){
                 case 0:sign_in();
                     break;
                 case 1:sign_up();
                     break;
-                case 2: is_active = false;
+                case 2:forget_password();
+                    break;
+                case 3:is_active = false;
                     break;
                 default: System.out.println("Wrong Input");
             }
@@ -107,9 +110,9 @@ public class CFClient {
             System.out.print("Please select a Password : ");
             password = scanner.next();
             System.out.print("Please select a Secret Question : ");
-            secretQuestion = scanner.next();
+            secretQuestion = scanner.nextLine();
             System.out.print("Please select Secret Question's Answer : ");
-            secretAnswer = scanner.next();
+            secretAnswer = scanner.nextLine();
         }// Collect Form Information in This Scope
         send_json_package(factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer)));
         // Check Server Response if username exists or not
@@ -144,7 +147,7 @@ public class CFClient {
         }
     }
 
-    private void forget_password() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+    private void forget_password() throws Exception {
         get_public_key_if_null();
         String username;
         String secretAnswer;
@@ -154,12 +157,23 @@ public class CFClient {
         JSONObject phase_1_response = new JSONObject(input.readUTF());
         if (phase_1_response.get("Type").toString().equals("Response")){
             if (phase_1_response.get("Response").toString().equals("Forget-Password-Phase-1")){
-
+                System.out.println("Question : " + byte_to_string(decrypt(publicKey,json_array_to_byte_array((JSONArray) phase_1_response.get("SecretQuestion")))));
+                System.out.print("Answer : ");
+                String answer = scanner.nextLine();
+                send_json_package(factory.forget_password_request_phase_2(username,encrypt(publicKey,answer)));
+                JSONObject phase_2_response = new JSONObject(input.readUTF());
+                if (phase_2_response.get("Type").toString().equals("Response")){
+                    if (phase_2_response.get("Response").toString().equals("Forget-Password-Phase-2")){
+                        System.out.println("Your password is : " + byte_to_string(decrypt(publicKey,json_array_to_byte_array((JSONArray) phase_2_response.get("Password")))));
+                    }
+                }
+                else if (phase_2_response.get("Type").toString().equals("Error")){
+                    System.out.println(phase_2_response.get("Error").toString());
+                }
             }
+        }else if (phase_1_response.get("Type").toString().equals("Error")){
+            System.out.println(phase_1_response.get("Error").toString());
         }
-
-
-
     }
 
     private void send_json_package(String json_package) throws IOException {
@@ -201,7 +215,7 @@ public class CFClient {
     }
 
     //Json Array to byte[]
-    public byte[] json_array_to_byte_array(JSONArray array){
+    private byte[] json_array_to_byte_array(JSONArray array){
         byte[] bytes = new byte[array.length()];
         for (int index = 0; index < array.length(); index++) {
             bytes[index] = (byte) array.get(index);

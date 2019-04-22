@@ -32,7 +32,7 @@ public class CFCPackageFactory {
     protected final String sign_in_request(String username,byte[] password){
         JSONObject object = new JSONObject();
         object.put("Type","Request");
-        object.put("Request","Sing-Up");
+        object.put("Request","Sing-In");
         object.put("Username",username);
         object.put("Password",password);
         return object.toString();
@@ -47,6 +47,7 @@ public class CFCPackageFactory {
         object.put("Username",username);
         return object.toString();
     }
+
     //Phase 2 Package
     protected final String forget_password_request_phase_2(String username,byte[] answer){
         JSONObject object = new JSONObject();

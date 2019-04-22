@@ -1,17 +1,27 @@
 package Server;
 
 import java.net.Socket;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 public class CFSClient {
 
     private Socket client;
     private byte[] privateKey;
     private byte[] publicKey;
+    private PrivateKey privateKeyClassVersion;
+    private PublicKey publicKeyClassVersion;
 
-    public CFSClient(Socket client, byte[] privateKey, byte[] publicKey){
+    public CFSClient(Socket client, byte[] privateKey, byte[] publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.client = client;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
+        this.privateKeyClassVersion = KeyFactory.getInstance("RSA").generatePrivate(new X509EncodedKeySpec(privateKey));
+        this.publicKeyClassVersion = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicKey));
     }
 
 
@@ -25,5 +35,14 @@ public class CFSClient {
 
     public byte[] getPublicKey() {
         return publicKey;
+    }
+
+
+    public PrivateKey getPrivateKeyClassVersion() {
+        return privateKeyClassVersion;
+    }
+
+    public PublicKey getPublicKeyClassVersion() {
+        return publicKeyClassVersion;
     }
 }
