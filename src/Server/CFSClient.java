@@ -15,6 +15,7 @@ public class CFSClient {
     private byte[] publicKey;
     private PrivateKey privateKeyClassVersion;
     private PublicKey publicKeyClassVersion;
+    private String username;
 
     public CFSClient(Socket client, byte[] privateKey, byte[] publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.client = client;
@@ -44,5 +45,13 @@ public class CFSClient {
 
     public PublicKey getPublicKeyClassVersion() {
         return publicKeyClassVersion;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

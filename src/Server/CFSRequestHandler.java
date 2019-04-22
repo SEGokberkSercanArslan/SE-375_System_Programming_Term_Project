@@ -23,6 +23,7 @@ public class CFSRequestHandler implements Runnable{
     private DataOutputStream stream_out;
     private CFSClient cfsClient;
     private CFSPackageFactory factory = new CFSPackageFactory();
+    private CFSDatabase database = new CFSDatabase();
 
     /*Constructor Decelerations*/
     public CFSRequestHandler(Socket client, CFServer server){
@@ -55,18 +56,60 @@ public class CFSRequestHandler implements Runnable{
         JSONObject object = new JSONObject(request);
 
         if (object.get("Type").toString().equals("Request")){
-            if (object.get("Request").toString().equals("RSA-PUB")){
-                server.add_active_client(this.cfsClient);
-                server.send_json_package(client,factory.rsa_public_key_package(cfsClient.getPublicKey()));
-            }else if (object.get("Request").toString().equals("Sign-Up")){
-                String username = object.get("Username").toString();
-            }else if (object.get("Request").toString().equals("Sign-In")){
+            switch (object.get("Request").toString()) {
+                case "RSA-PUB":
+                    server.add_active_client(this.cfsClient);
+                    send_json_package(factory.rsa_public_key_package(cfsClient.getPublicKey()));
+                    break;
+                case "Sign-Up": {
+                    String username = object.get("Username").toString();
+                    if (database.is_user_exist(username)) {
+                        send_json_package(factory.error_username_already_exists());
+                    } else {
+                        String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("Password"))));
+                        String secretQuestion = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("SecretQuestion"))));
+                        String secretAnswer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("Answer"))));
+                        database.add_new_user(username, password, secretQuestion, secretAnswer);
+                        send_json_package(factory.confirmation_package_sign_up());
+                    }
 
-            }else if (object.get("Request").toString().equals("Forget-Password-Phase-1")){
-                String username = object.get("Username").toString();
-            }else if (object.get("Request").toString().equals("Forget-Password-Phase-2")){
-                String username = object.get("Username").toString();
-                String answer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(),json_array_to_byte_array((JSONArray) object.get("Answer"))));
+                    break;
+                }
+                case "Sign-In":{
+                    String username = object.get("Username").toString();
+                    String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(),json_array_to_byte_array((JSONArray) object.get("Password"))));
+                    if (server.is_username_online(username)){
+                        // Create Package Account Already Online
+                    }else {
+                        if (password.equals(database.get_user_password(username))){
+
+                        }
+                        else {
+
+                        }
+                    }
+                }
+
+                    break;
+                case "Forget-Password-Phase-1": {
+                    String username = object.get("Username").toString();
+                    if (database.is_user_exist(username)){
+                        send_json_package(factory.phase_1_password_reset_response_package(encrypt(this.cfsClient.getPrivateKeyClassVersion(),database.get_secret_question(username))));
+                    }else {
+                        send_json_package(factory.phase_1_password_reset_invalid_username_package());
+                    }
+                    break;
+                }
+                case "Forget-Password-Phase-2": {
+                    String username = object.get("Username").toString();
+                    String answer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("Answer"))));
+                    if (database.get_secret_answer(username).equals(answer)){
+                        send_json_package(factory.phase_2_password_reset_response_package(encrypt(this.cfsClient.getPrivateKeyClassVersion(),database.get_user_password(username))));
+                    }else {
+                        send_json_package(factory.phase_2_password_reset_invalid_answer_package());
+                    }
+                    break;
+                }
             }
         }
 

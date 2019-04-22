@@ -10,12 +10,14 @@ public class CFSDatabase {
 
     }
 
-    protected void add_new_user(String username,String password){
-        String sql = "INSERT INTO ClientInfo(Username,Password) VALUES(?,?)";
+    protected void add_new_user(String username,String password,String question,String answer){
+        String sql = "INSERT INTO ClientInfo(Username,Password,SecretQuestion,SecretAnswer) VALUES(?,?,?,?)";
         try (Connection connection = this.connect();
              PreparedStatement statement = connection.prepareStatement(sql)){
             statement.setString(1,username);
             statement.setString(2,password);
+            statement.setString(3,question);
+            statement.setString(4,answer);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -39,7 +41,7 @@ public class CFSDatabase {
     }
 
     protected String get_user_password(String username){
-        String sql = "SELECT * FROM ClientInfo";
+        String sql = "SELECT Username,Password FROM ClientInfo";
         try (Connection connection = this.connect();
             PreparedStatement statement = connection.prepareStatement(sql)){
             ResultSet resultSet = statement.executeQuery();
@@ -48,6 +50,40 @@ public class CFSDatabase {
                     return resultSet.getString("Password");
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Not Found";
+    }
+
+    protected String get_secret_question(String username){
+        String sql = "SELECT Username,SecretQuestion FROM ClientInfo";
+        try (Connection connection = this.connect();
+             PreparedStatement statement = connection.prepareStatement(sql)){
+             ResultSet resultSet = statement.executeQuery();
+             while (resultSet.next()){
+                 if (resultSet.getString("Username").equals(username)){
+                     return resultSet.getString("SecretQuestion");
+                 }
+             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Not Found";
+    }
+
+    protected String get_secret_answer(String username){
+        String sql = "SELECT Username,SecretAnswer FROM ClientInfo";
+        try (Connection connection = this.connect();
+             PreparedStatement statement = connection.prepareStatement(sql)){
+             ResultSet resultSet = statement.executeQuery();
+             while (resultSet.next()){
+                 if (resultSet.getString("Username").equals(username)){
+                     return resultSet.getString("SecretAnswer");
+                 }
+             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

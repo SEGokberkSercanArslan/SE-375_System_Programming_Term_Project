@@ -57,10 +57,12 @@ public class CFServer {
         return false;
     }
 
+    /*
     protected void send_json_package(Socket client,String json_package) throws IOException {
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
         out.writeUTF(json_package);
     }
+    */
 
     protected void add_active_client(CFSClient client){
         clients.add(client);
@@ -69,4 +71,14 @@ public class CFServer {
     public ThreadPoolExecutor getClient_pool() {
         return client_pool;
     }
+
+    public final boolean is_username_online(String username){
+        for (CFSClient client : clients) {
+            if (client.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
