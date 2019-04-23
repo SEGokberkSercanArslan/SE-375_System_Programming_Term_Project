@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -34,9 +35,9 @@ public class CFSRequestHandler implements Runnable{
         try {
             this.stream_input = new DataInputStream(client.getInputStream());
             this.stream_out = new DataOutputStream(client.getOutputStream());
-            this.cfsClient = new CFSClient(client,privateKey(keyGenerator()),publicKey(keyGenerator()));
+            this.cfsClient = new CFSClient(client,keyGenerator());
             System.out.println("In request Handler");
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
@@ -131,18 +132,19 @@ public class CFSRequestHandler implements Runnable{
     }
 
     /*RSA KEY GENERATORS*/
-    private KeyPairGenerator keyGenerator() throws NoSuchAlgorithmException {
+    private KeyPair keyGenerator() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(1024);
-        return keyPairGenerator;
+        KeyPair keyPair = keyPairGenerator.genKeyPair();
+        return keyPair;
     }
 
-    private byte [] publicKey(KeyPairGenerator keyPairGenerator){
-        return keyPairGenerator.genKeyPair().getPublic().getEncoded();
+    private byte [] publicKey(KeyPair keyPairGenerator){
+        return keyPairGenerator.getPublic().getEncoded();
     }
 
-    private byte [] privateKey(KeyPairGenerator keyPairGenerator){
-        return keyPairGenerator.genKeyPair().getPrivate().getEncoded();
+    private byte [] privateKey(KeyPair keyPairGenerator){
+        return keyPairGenerator.getPrivate().getEncoded();
     }
 
     //Decipher Operations
