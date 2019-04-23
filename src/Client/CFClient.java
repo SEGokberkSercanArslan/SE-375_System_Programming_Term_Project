@@ -155,6 +155,8 @@ public class CFClient {
         String username;
         String secretAnswer;
         Scanner scanner = new Scanner(System.in);
+        Scanner lineScanner = new Scanner(System.in);
+        System.out.print("Please input Username : ");
         username = scanner.next();
         send_json_package(factory.forget_password_request_phase_1(username));
         JSONObject phase_1_response = new JSONObject(input.readUTF());
@@ -162,7 +164,7 @@ public class CFClient {
             if (phase_1_response.get("Response").toString().equals("Forget-Password-Phase-1")){
                 System.out.println("Question : " + byte_to_string(decrypt(publicKey,base64_byte_converter(phase_1_response.get("SecretQuestion").toString()))));
                 System.out.print("Answer : ");
-                String answer = scanner.nextLine();
+                String answer = lineScanner.nextLine();
                 send_json_package(factory.forget_password_request_phase_2(username,base64_string_converter(encrypt(publicKey,answer))));
                 JSONObject phase_2_response = new JSONObject(input.readUTF());
                 if (phase_2_response.get("Type").toString().equals("Response")){
