@@ -1,5 +1,7 @@
 package Server;
 
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -70,16 +72,18 @@ public class CFSRequestHandler implements Runnable{
             switch (object.get("Request").toString()) {
                 case "RSA-PUB":
                     server.add_active_client(this.cfsClient);
-                    send_json_package(factory.rsa_public_key_package(cfsClient.getPublicKey()));
+                    send_json_package(factory.rsa_public_key_package(base64_string_converter(cfsClient.getPublicKey())));
                     break;
                 case "Sign-Up": {
                     String username = object.get("Username").toString();
                     if (database.is_user_exist(username)) {
                         send_json_package(factory.error_username_already_exists());
                     } else {
-                        String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("Password"))));
-                        String secretQuestion = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("SecretQuestion"))));
-                        String secretAnswer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("Answer"))));
+                        System.out.println("---------------------------");
+                        System.out.println(object.get("Password").toString());
+                        String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), base64_byte_converter(object.get("Password").toString())));
+                        String secretQuestion = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), base64_byte_converter(object.get("SecretQuestion").toString())));
+                        String secretAnswer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), base64_byte_converter(object.get("Answer").toString())));
                         database.add_new_user(username, password, secretQuestion, secretAnswer);
                         send_json_package(factory.confirmation_package_sign_up());
                     }
@@ -88,7 +92,7 @@ public class CFSRequestHandler implements Runnable{
                 }
                 case "Sign-In":{
                     String username = object.get("Username").toString();
-                    String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(),json_array_to_byte_array((JSONArray) object.get("Password"))));
+                    String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(),base64_byte_converter(object.get("Password").toString())));
                     if (server.is_username_online(username)){
                         // Create Package Account Already Online
                     }else {
@@ -105,7 +109,7 @@ public class CFSRequestHandler implements Runnable{
                 case "Forget-Password-Phase-1": {
                     String username = object.get("Username").toString();
                     if (database.is_user_exist(username)){
-                        send_json_package(factory.phase_1_password_reset_response_package(encrypt(this.cfsClient.getPrivateKeyClassVersion(),database.get_secret_question(username))));
+                        send_json_package(factory.phase_1_password_reset_response_package(base64_string_converter(encrypt(this.cfsClient.getPrivateKeyClassVersion(),database.get_secret_question(username)))));
                     }else {
                         send_json_package(factory.phase_1_password_reset_invalid_username_package());
                     }
@@ -113,9 +117,9 @@ public class CFSRequestHandler implements Runnable{
                 }
                 case "Forget-Password-Phase-2": {
                     String username = object.get("Username").toString();
-                    String answer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(), json_array_to_byte_array((JSONArray) object.get("Answer"))));
+                    String answer = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(),base64_byte_converter(object.get("Answer").toString())));
                     if (database.get_secret_answer(username).equals(answer)){
-                        send_json_package(factory.phase_2_password_reset_response_package(encrypt(this.cfsClient.getPrivateKeyClassVersion(),database.get_user_password(username))));
+                        send_json_package(factory.phase_2_password_reset_response_package(base64_string_converter(encrypt(this.cfsClient.getPrivateKeyClassVersion(),database.get_user_password(username)))));
                     }else {
                         send_json_package(factory.phase_2_password_reset_invalid_answer_package());
                     }
@@ -165,13 +169,12 @@ public class CFSRequestHandler implements Runnable{
         this.stream_out.writeUTF(json_string);
     }
 
-    //Json Array to byte[]
-    private byte[] json_array_to_byte_array(JSONArray array){
-        byte[] bytes = new byte[array.length()];
-        for (int index = 0; index < array.length(); index++) {
-            bytes[index] = (byte) array.get(index);
-        }
-        return bytes;
+    /*Special Methods Converting Bytes to String*/
+    private String base64_string_converter(byte[] bytes){
+        return Base64.encode(bytes);
+    }
+    private byte[] base64_byte_converter(String msg) throws Base64DecodingException {
+        return Base64.decode(msg);
     }
 
 

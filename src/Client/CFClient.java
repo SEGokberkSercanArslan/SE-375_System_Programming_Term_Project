@@ -1,5 +1,7 @@
 package Client;
 
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -84,7 +86,7 @@ public class CFClient {
             System.out.print("Password : ");
             password = scanner.next();
         }
-        send_json_package(factory.sign_in_request(username,encrypt(publicKey,password)));
+        send_json_package(factory.sign_in_request(username,base64_string_converter(encrypt(publicKey,password))));
         String response = input.readUTF();
         JSONObject object = new JSONObject();
         if (object.get("Type").toString().equals("Confirmation")){
@@ -104,17 +106,18 @@ public class CFClient {
         String secretQuestion;
         String secretAnswer;
         Scanner scanner = new Scanner(System.in);
+        Scanner lineScanner = new Scanner(System.in);
         {
             System.out.print("Please select a Username : ");
             username = scanner.next();
             System.out.print("Please select a Password : ");
             password = scanner.next();
             System.out.print("Please select a Secret Question : ");
-            secretQuestion = scanner.nextLine();
+            secretQuestion = lineScanner.nextLine();
             System.out.print("Please select Secret Question's Answer : ");
-            secretAnswer = scanner.nextLine();
+            secretAnswer = lineScanner.nextLine();
         }// Collect Form Information in This Scope
-        send_json_package(factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer)));
+        send_json_package(factory.sign_up_request(username,base64_string_converter(encrypt(publicKey,password)),base64_string_converter(encrypt(publicKey,secretQuestion)),base64_string_converter(encrypt(publicKey,secretAnswer))));
         // Check Server Response if username exists or not
         JSONObject object = new JSONObject(input.readUTF());
         boolean handled_in_error = false;
@@ -127,7 +130,7 @@ public class CFClient {
                 handled_in_error = true;
                 break;
             }else {
-                send_json_package(factory.sign_up_request(username,encrypt(publicKey,password),encrypt(publicKey,secretQuestion),encrypt(publicKey,secretAnswer)));
+                send_json_package(factory.sign_up_request(username,base64_string_converter(encrypt(publicKey,password)),base64_string_converter(encrypt(publicKey,secretQuestion)),base64_string_converter(encrypt(publicKey,secretAnswer))));
                 JSONObject response = new JSONObject(input.readUTF());
                 if (response.get("Type").toString().equals("Confirmation")){
                     if (response.get("Confirmation").toString().equals("Sign-Up")){
@@ -157,14 +160,14 @@ public class CFClient {
         JSONObject phase_1_response = new JSONObject(input.readUTF());
         if (phase_1_response.get("Type").toString().equals("Response")){
             if (phase_1_response.get("Response").toString().equals("Forget-Password-Phase-1")){
-                System.out.println("Question : " + byte_to_string(decrypt(publicKey,json_array_to_byte_array((JSONArray) phase_1_response.get("SecretQuestion")))));
+                System.out.println("Question : " + byte_to_string(decrypt(publicKey,base64_byte_converter(phase_1_response.get("SecretQuestion").toString()))));
                 System.out.print("Answer : ");
                 String answer = scanner.nextLine();
-                send_json_package(factory.forget_password_request_phase_2(username,encrypt(publicKey,answer)));
+                send_json_package(factory.forget_password_request_phase_2(username,base64_string_converter(encrypt(publicKey,answer))));
                 JSONObject phase_2_response = new JSONObject(input.readUTF());
                 if (phase_2_response.get("Type").toString().equals("Response")){
                     if (phase_2_response.get("Response").toString().equals("Forget-Password-Phase-2")){
-                        System.out.println("Your password is : " + byte_to_string(decrypt(publicKey,json_array_to_byte_array((JSONArray) phase_2_response.get("Password")))));
+                        System.out.println("Your password is : " + byte_to_string(decrypt(publicKey,base64_byte_converter(phase_2_response.get("Password").toString()))));
                     }
                 }
                 else if (phase_2_response.get("Type").toString().equals("Error")){
@@ -180,7 +183,7 @@ public class CFClient {
         this.out.writeUTF(json_package);
     }
 
-    private void get_public_key_if_null() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private void get_public_key_if_null() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, Base64DecodingException {
         if (this.publicKey == null){
             System.out.println("In Public Key Null");
             send_json_package(factory.rsa_public_key_request());
@@ -189,10 +192,9 @@ public class CFClient {
             System.out.println(object.toString());
             if (object.get("Type").toString().equals("Response")){
                 if (object.get("Response").toString().equals("RSA-PUB")){
-                    JSONArray array = new JSONArray(object.get("RSA-PUB").toString());
-                    byte[] keyPub = json_array_to_byte_array(array);
+                    byte[] keyPub = base64_byte_converter(object.get("RSA-PUB").toString());                                        //Modify base 64 decoder
                     publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyPub));
-                    System.out.println("In");
+                    System.out.println("Public Key Done");
                 }
             }
         }
@@ -217,13 +219,12 @@ public class CFClient {
         return new String(decrypted_bytes,StandardCharsets.UTF_8);
     }
 
-    //Json Array to byte[]
-    private byte[] json_array_to_byte_array(JSONArray array){
-        byte[] bytes = new byte[array.length()];
-        for (int index = 0; index < array.length(); index++) {
-            bytes[index] = (byte) array.get(index);
-        }
-        return bytes;
+    /*Special Methods Converting Bytes to String*/
+    private String base64_string_converter(byte[] bytes){
+        return Base64.encode(bytes);
+    }
+    private byte[] base64_byte_converter(String msg) throws Base64DecodingException {
+        return Base64.decode(msg);
     }
 
 }

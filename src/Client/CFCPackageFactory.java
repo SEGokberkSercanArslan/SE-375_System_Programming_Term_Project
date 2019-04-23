@@ -17,7 +17,7 @@ public class CFCPackageFactory {
     }
 
     //Sign-Up Request
-    protected final String sign_up_request(String username,byte[] password,byte[] secretQuestion,byte[] answer){
+    protected final String sign_up_request(String username,String password,String secretQuestion,String answer){
         JSONObject object = new JSONObject();
         object.put("Type","Request");
         object.put("Request","Sign-Up");
@@ -29,7 +29,7 @@ public class CFCPackageFactory {
     }
 
     //Sing-In Request
-    protected final String sign_in_request(String username,byte[] password){
+    protected final String sign_in_request(String username,String password){
         JSONObject object = new JSONObject();
         object.put("Type","Request");
         object.put("Request","Sing-In");
@@ -49,7 +49,7 @@ public class CFCPackageFactory {
     }
 
     //Phase 2 Package
-    protected final String forget_password_request_phase_2(String username,byte[] answer){
+    protected final String forget_password_request_phase_2(String username,String answer){
         JSONObject object = new JSONObject();
         object.put("Type","Request");
         object.put("Request","Forget-Password-Phase-2");
