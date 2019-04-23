@@ -32,7 +32,8 @@ public class CFSRequestHandler implements Runnable{
         try {
             this.stream_input = new DataInputStream(client.getInputStream());
             this.stream_out = new DataOutputStream(client.getOutputStream());
-            this.cfsClient = new CFSClient(client,publicKey(keyGenerator()),privateKey(keyGenerator()));
+            this.cfsClient = new CFSClient(client,privateKey(keyGenerator()),publicKey(keyGenerator()));
+            System.out.println("In request Handler");
         } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
@@ -43,9 +44,19 @@ public class CFSRequestHandler implements Runnable{
         while (!this.client.isClosed()){
             try {
                 String request = stream_input.readUTF();
+                decode_request(request);
 
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }finally {
+
             }
         }
     }

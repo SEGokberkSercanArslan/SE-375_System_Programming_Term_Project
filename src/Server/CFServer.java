@@ -1,6 +1,7 @@
 package Server;
 
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,8 +25,12 @@ public class CFServer {
         this.incoming_request_pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(incoming_pool_size);
         try {
             this.server_tcp_socket = new ServerSocket(12600);
+        } catch (EOFException e){
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+
         }
     }
 
@@ -57,12 +62,12 @@ public class CFServer {
         return false;
     }
 
-    /*
+
     protected void send_json_package(Socket client,String json_package) throws IOException {
         DataOutputStream out = new DataOutputStream(client.getOutputStream());
         out.writeUTF(json_package);
     }
-    */
+
 
     protected void add_active_client(CFSClient client){
         clients.add(client);

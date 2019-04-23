@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class CFSClient {
@@ -21,7 +22,7 @@ public class CFSClient {
         this.client = client;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
-        this.privateKeyClassVersion = KeyFactory.getInstance("RSA").generatePrivate(new X509EncodedKeySpec(privateKey));
+        this.privateKeyClassVersion = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(privateKey));
         this.publicKeyClassVersion = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicKey));
     }
 

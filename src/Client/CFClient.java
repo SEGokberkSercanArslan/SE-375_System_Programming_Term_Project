@@ -52,11 +52,11 @@ public class CFClient {
         is_active = true;
         while (is_active){
             Scanner scanner = new Scanner(System.in);
-            int choice = scanner.nextInt();
             System.out.println("0 : Sign-in game");
             System.out.println("1 : Sign-up game");
             System.out.println("2 : Forget Password");
             System.out.println("3 : Close the game");
+            int choice = scanner.nextInt();
             switch (choice){
                 case 0:sign_in();
                     break;
@@ -182,14 +182,17 @@ public class CFClient {
 
     private void get_public_key_if_null() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         if (this.publicKey == null){
+            System.out.println("In Public Key Null");
             send_json_package(factory.rsa_public_key_request());
             String json_string = input.readUTF();
             JSONObject object = new JSONObject(json_string);
+            System.out.println(object.toString());
             if (object.get("Type").toString().equals("Response")){
                 if (object.get("Response").toString().equals("RSA-PUB")){
-                    JSONArray array = new JSONArray(object.get("RSA-PUB"));
+                    JSONArray array = new JSONArray(object.get("RSA-PUB").toString());
                     byte[] keyPub = json_array_to_byte_array(array);
                     publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(keyPub));
+                    System.out.println("In");
                 }
             }
         }
