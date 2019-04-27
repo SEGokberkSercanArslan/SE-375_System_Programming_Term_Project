@@ -89,7 +89,7 @@ public class CFClient {
         }
         send_json_package(factory.sign_in_request(username,base64_string_converter(encrypt(publicKey,password))));
         String response = input.readUTF();
-        JSONObject object = new JSONObject();
+        JSONObject object = new JSONObject(response);
         if (object.get("Type").toString().equals("Confirmation")){
             if (object.get("Confirmation").toString().equals("Sign-In")){
                 game_lobby((object.getJSONArray("Seasons")));
@@ -103,9 +103,9 @@ public class CFClient {
         boolean sign_in = true;
         JSONArray season_list = seasons;
         while (sign_in){
-            System.out.println("Active Game Seasons Listed Bellow");
+            System.out.println("Active Server.Game Seasons Listed Bellow");
             for (int index = 0; index < season_list.length(); index++) {
-                System.out.println("ID : " + index + " Game : " + season_list.getJSONObject(index).get("Season").toString() +
+                System.out.println("ID : " + index + " Server.Game : " + season_list.getJSONObject(index).get("Season").toString() +
                         " Current Players : " + season_list.getJSONObject(index).get("Current").toString() +
                         " Maximum : " + season_list.getJSONObject(index).get("Maximum").toString() );
             }

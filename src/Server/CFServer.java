@@ -1,6 +1,6 @@
 package Server;
 
-import Game.CFGameSeason;
+import Server.Game.CFGameSeason;
 
 import java.io.DataOutputStream;
 import java.io.EOFException;

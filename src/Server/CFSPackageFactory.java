@@ -1,6 +1,6 @@
 package Server;
 
-import Game.CFGameSeason;
+import Server.Game.CFGameSeason;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

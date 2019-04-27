@@ -32,7 +32,7 @@ public class CFCPackageFactory {
     protected final String sign_in_request(String username,String password){
         JSONObject object = new JSONObject();
         object.put("Type","Request");
-        object.put("Request","Sing-In");
+        object.put("Request","Sign-In");
         object.put("Username",username);
         object.put("Password",password);
         return object.toString();
