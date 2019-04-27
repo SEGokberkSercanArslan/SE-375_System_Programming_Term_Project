@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019. This file created by Gökberk Sercan Arslan. All Rights Reserved.
+ */
+
 package Client;
 
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
@@ -318,3 +322,4 @@ public class CFClient {
     }
 
 }
+

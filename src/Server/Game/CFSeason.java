@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019. This file created by Gökberk Sercan Arslan. All Rights Reserved.
+ */
+
 package Server.Game;
 
 import Client.CFClient;
