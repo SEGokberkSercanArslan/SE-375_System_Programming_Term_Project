@@ -23,6 +23,19 @@ public class CFGameSeason {
         }
     }
 
+    public int get_current_number_of_players(){
+        return players.size();
+    }
+
+    public int get_max_number_of_players(){
+        return max_players;
+    }
+
+    public String get_season_name(){
+        return season_name;
+    }
+
+
     /*Function definitions here*/
 
 }

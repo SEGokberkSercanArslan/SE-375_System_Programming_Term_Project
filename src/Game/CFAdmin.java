@@ -1,9 +1,13 @@
 package Game;
 
+import java.net.Socket;
+
 public class CFAdmin extends CFPlayer{
 
-    public CFAdmin(String username) {
-        super(username);
+
+    public CFAdmin(String username, Socket client) {
+        super(username, client);
     }
+
 
 }

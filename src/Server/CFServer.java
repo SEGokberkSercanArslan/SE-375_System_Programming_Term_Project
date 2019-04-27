@@ -1,5 +1,7 @@
 package Server;
 
+import Game.CFGameSeason;
+
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -16,6 +18,7 @@ public class CFServer {
     private ThreadPoolExecutor client_pool;
     private ThreadPoolExecutor incoming_request_pool;
     private ArrayList<CFSClient> clients = new ArrayList<CFSClient>();
+    private ArrayList<CFGameSeason> seasons = new ArrayList<CFGameSeason>();
     private final int pool_size = 50;
     private final int incoming_pool_size = 5;
 
@@ -79,11 +82,14 @@ public class CFServer {
 
     public final boolean is_username_online(String username){
         for (CFSClient client : clients) {
-            if (client.getUsername().equals(username)) {
+            if (client.getUsername().equals(username) && client.is_sign_in()) {
                 return true;
             }
         }
         return false;
     }
 
+    public ArrayList<CFGameSeason> get_Seasons() {
+        return seasons;
+    }
 }

@@ -58,5 +58,21 @@ public class CFCPackageFactory {
         return object.toString();
     }
 
+    //Sign-out Request
+    protected final String sign_out_request(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Sign-Out");
+        return object.toString();
+    }
+
+    //Refresh Lobby Request
+    protected final String refresh_lobby_request(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Refresh-Lobby");
+        return object.toString();
+    }
+
 
 }

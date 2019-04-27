@@ -1,6 +1,10 @@
 package Server;
 
+import Game.CFGameSeason;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class CFSPackageFactory {
 
@@ -10,11 +14,26 @@ public class CFSPackageFactory {
 
     }
 
-    //Create this package if client already online
+    //Create this package if client socket is same that means online
     protected final String error_already_online(){
         JSONObject object = new JSONObject();
         object.put("Type","Error");
         object.put("Error","Already-Online");
+        return object.toString();
+    }
+
+    //Create This package if user is already sign - in
+    protected final String error_username_online(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Error");
+        object.put("Error","Username-Already-Sign-In");
+        return object.toString();
+    }
+
+    protected final String error_invalid_username_password(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Error");
+        object.put("Error","Invalid-Username-Password");
         return object.toString();
     }
 
@@ -81,13 +100,40 @@ public class CFSPackageFactory {
     }
 
     //Sign-In
-    protected String confirmation_package_sign_in(){
+    protected final String confirmation_package_sign_in(ArrayList<CFGameSeason> seasons){
         JSONObject object = new JSONObject();
         object.put("Type","Confirmation");
         object.put("Confirmation","Sign-In");
         //Main menu list will come here in Json Array
+        JSONArray array = new JSONArray();
+        for (CFGameSeason season : seasons) {
+            array.put(new JSONObject().put("Season", season.get_season_name()).put("Maximum", season.get_max_number_of_players()).put("Current", season.get_current_number_of_players()));
+        }
+        object.put("Seasons",array);
         return object.toString();
     }
+
+    //Sign-Out Confirmation
+    protected final String confirmation_sign_out(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Confirmation");
+        object.put("Confirmation","Sign-Out");
+        return object.toString();
+    }
+
+    //Refresh Lobby Request Response
+    protected final String refresh_lobby_response_package(ArrayList<CFGameSeason> seasons){
+        JSONObject object = new JSONObject();
+        object.put("Type","Response");
+        object.put("Response","Refresh");
+        JSONArray array = new JSONArray();
+        for (CFGameSeason season : seasons) {
+            array.put(new JSONObject().put("Season", season.get_season_name()).put("Maximum", season.get_max_number_of_players()).put("Current", season.get_current_number_of_players()));
+        }
+        object.put("Seasons",array);
+        return object.toString();
+    }
+
 
 
 

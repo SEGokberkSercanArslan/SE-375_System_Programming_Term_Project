@@ -2,6 +2,7 @@ package Client;
 
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -91,9 +92,64 @@ public class CFClient {
         JSONObject object = new JSONObject();
         if (object.get("Type").toString().equals("Confirmation")){
             if (object.get("Confirmation").toString().equals("Sign-In")){
-                while (true){
-                    //Fill here when game object is ready
+                game_lobby((object.getJSONArray("Seasons")));
+            }
+        }else if (object.get("Type").toString().equals("Error")){
+            System.out.println(object.get("Error").toString());
+        }
+    }
+
+    private void game_lobby(JSONArray seasons) throws IOException {
+        boolean sign_in = true;
+        JSONArray season_list = seasons;
+        while (sign_in){
+            System.out.println("Active Game Seasons Listed Bellow");
+            for (int index = 0; index < season_list.length(); index++) {
+                System.out.println("ID : " + index + " Game : " + season_list.getJSONObject(index).get("Season").toString() +
+                        " Current Players : " + season_list.getJSONObject(index).get("Current").toString() +
+                        " Maximum : " + season_list.getJSONObject(index).get("Maximum").toString() );
+            }
+            System.out.println("For Sign-Out input : 'sign-out' ");
+            System.out.println("For Refresh Lobby input : 'refresh'");
+            System.out.println("For Create Server input : 'create'");
+            System.out.println("For Join Server input : Server ID");
+            Scanner scanner = new Scanner(System.in);
+            String choice = scanner.nextLine();
+            if (StringUtils.isNumeric(choice)){
+                //Server Join Request Here
+
+            }else if (choice.equals("sign-out")){
+                //Sign Out Request Here
+                send_json_package(factory.sign_out_request());
+                String confirmation = input.readUTF();
+                JSONObject object = new JSONObject(confirmation);
+                if (object.get("Type").toString().equals("Confirmation")){
+                    if (object.get("Confirmation").toString().equals("Sign-Out")){
+                        sign_in = false;
+                        System.out.println("Sign-Out Complete.");
+                    }else {
+                        System.out.println("Wrong Type of Confirmation");
+                    }
                 }
+
+            }else if (choice.equals("refresh")){
+                //Refresh Request Here
+                send_json_package(factory.refresh_lobby_request());
+                String response = input.readUTF();
+                JSONObject object = new JSONObject(response);
+                if (object.get("Type").toString().equals("Response")){
+                    if (object.get("Response").toString().equals("Refresh")){
+                        season_list = object.getJSONArray("Seasons");
+                    }else {
+                        System.out.println("Wrong Response Type");
+                    }
+                }
+
+            }else if (choice.equals("create")){
+                //Create Request Here
+
+            }else {
+                System.out.println("Wrong Input Type");
             }
         }
     }

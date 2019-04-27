@@ -13,7 +13,8 @@ public class CFSClient {
     private byte[] publicKey;
     private PrivateKey privateKeyClassVersion;
     private PublicKey publicKeyClassVersion;
-    private String username;
+    private String username = "";
+    private boolean sign_in = false;
 
     public CFSClient(Socket client, KeyPair keyPair) {
         this.client = client;
@@ -51,5 +52,13 @@ public class CFSClient {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public boolean is_sign_in() {
+        return sign_in;
+    }
+
+    public void set_sign_in(boolean sign_in) {
+        this.sign_in = sign_in;
     }
 }

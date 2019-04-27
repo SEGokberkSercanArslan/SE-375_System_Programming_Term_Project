@@ -2,7 +2,6 @@ package Server;
 
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.crypto.Cipher;
@@ -15,7 +14,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
 
 public class CFSRequestHandler implements Runnable{
 
@@ -71,10 +69,11 @@ public class CFSRequestHandler implements Runnable{
 
         if (object.get("Type").toString().equals("Request")){
             switch (object.get("Request").toString()) {
-                case "RSA-PUB":
+                case "RSA-PUB":{
                     server.add_active_client(this.cfsClient);
                     send_json_package(factory.rsa_public_key_package(base64_string_converter(cfsClient.getPublicKey())));
                     break;
+                }
                 case "Sign-Up": {
                     String username = object.get("Username").toString();
                     if (database.is_user_exist(username)) {
@@ -88,7 +87,6 @@ public class CFSRequestHandler implements Runnable{
                         database.add_new_user(username, password, secretQuestion, secretAnswer);
                         send_json_package(factory.confirmation_package_sign_up());
                     }
-
                     break;
                 }
                 case "Sign-In":{
@@ -96,17 +94,21 @@ public class CFSRequestHandler implements Runnable{
                     String password = byte_to_string(decrypt(this.cfsClient.getPrivateKeyClassVersion(),base64_byte_converter(object.get("Password").toString())));
                     if (server.is_username_online(username)){
                         // Create Package Account Already Online
+                        send_json_package(factory.error_username_online());
                     }else {
                         if (password.equals(database.get_user_password(username))){
-
+                            this.cfsClient.set_sign_in(true);
+                            this.cfsClient.setUsername(username);
+                            send_json_package(factory.confirmation_package_sign_in(server.get_Seasons())); //Send Server List to User
                         }
                         else {
-
+                            //Password or Username Invalid
+                            send_json_package(factory.error_invalid_username_password());
                         }
                     }
+                    break;
                 }
 
-                    break;
                 case "Forget-Password-Phase-1": {
                     String username = object.get("Username").toString();
                     if (database.is_user_exist(username)){
@@ -124,6 +126,35 @@ public class CFSRequestHandler implements Runnable{
                     }else {
                         send_json_package(factory.phase_2_password_reset_invalid_answer_package());
                     }
+                    break;
+                }
+                case "Sign-Out":{ // CFS Client Request
+                    this.cfsClient.set_sign_in(false);
+                    send_json_package(factory.confirmation_sign_out());
+                    break;
+                }
+                case "Refresh-Lobby":{
+                    send_json_package(factory.refresh_lobby_response_package(server.get_Seasons()));
+                    break;
+                }
+                case "Create-Server":{ //For Admin Request
+                    //Fill Here
+                    break;
+                }
+                case "Kick-Player":{ //For Admin Request
+                    //Fill Here
+                    break;
+                }
+                case "Start-Game":{ //For Admin Request
+                    //Fill Here
+                    break;
+                }
+                case "Join-Server":{ //For Player Request
+                    //Fill Here
+                    break;
+                }
+                case "Leave-Server":{ //For Player Request
+                    //Fill Here
                     break;
                 }
             }
