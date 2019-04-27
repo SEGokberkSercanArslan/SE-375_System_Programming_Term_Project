@@ -179,13 +179,74 @@ public class CFClient {
         }
     }
 
-    private void in_game_season(JSONObject object, boolean admin_access){
+    private void in_game_season(JSONObject object, boolean admin_access) throws IOException {
         boolean in_season = true;
+        JSONObject object1 = object;
         while (in_season){
             if (admin_access){ // If user has admin Access
+                System.out.println("You are in season : " + object1.get("Season-Name") + " as Admin Rights");
+                System.out.println("Current Players listed bellow");
+                for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
+                    System.out.println("ID : " + object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString() +
+                    " Player : " + object1.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString());
+                }
+                System.out.println("For Refresh List input : 'refresh'");
+                System.out.println("For Start Game input : 'start'");
+                System.out.println("For Exit Server : 'exit'");
+                System.out.println("For Kick Player instructions input : 'kick'");
+                Scanner scanner = new Scanner(System.in);
+                String choice = scanner.nextLine();
+                switch (choice){
+                    case "refresh":{
+                        send_json_package(factory.refresh_season_request(object1.get("Season-Name").toString()));
+                        object1 = new JSONObject(input.readUTF());
+                        break;
+                    }
+                    case "start":{
+                        if (object1.getJSONArray("Season-Players").length() >= 4){
+                            send_json_package(factory.start_season_request(object1.get("Season-Name").toString()));
+                            //Write here Get Confirmation then Play Game !
+                        }else {
+                            System.out.println("Not enough players for start. Required >= 4.");
+                        }
+                        break;
+                    }
+                    case "exit":{
+                        break;
+                    }
+                    case "kick":{
+                        break;
+                    }
+                    default:{
+                        System.out.println("Wrong input type.");
+                    }
+                }
 
-            }else { // If
+            }else { // If player join server and dont have admin access
+                System.out.println("You are in season : " + object1.get("Season-Name") + " as Admin Rights");
+                System.out.println("Current Players listed bellow");
+                for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
+                    System.out.println("ID : " + object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString() +
+                            " Player : " + object1.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString());
+                }
+                System.out.println("For Refresh List input : 'refresh'");
+                System.out.println("For Exit Server : 'exit'");
+                Scanner scanner = new Scanner(System.in);
+                String choice = scanner.nextLine();
+                switch (choice){
+                    case "refresh":{
+                        send_json_package(factory.refresh_season_request(object1.get("Season-Name").toString()));
+                        object1 = new JSONObject(input.readUTF());
+                        break;
+                    }
+                    case "exit":{
 
+                        break;
+                    }
+                    default:{
+                        System.out.println("Wrong input type.");
+                    }
+                }
             }
         }
     }

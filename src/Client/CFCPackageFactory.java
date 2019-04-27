@@ -89,5 +89,24 @@ public class CFCPackageFactory {
         return object.toString();
     }
 
+    //Refresh Season Request
+    protected final String refresh_season_request(String season_name){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Refresh-Season");
+        object.put("Refresh-Season",season_name);
+        return object.toString();
+    }
+
+    //Season Start Request
+    protected final String start_season_request(String season_name){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Start-Game");
+        object.put("Start-Game",season_name);
+        return object.toString();
+    }
+
+
 
 }
