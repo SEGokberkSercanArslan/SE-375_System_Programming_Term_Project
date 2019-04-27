@@ -1,5 +1,6 @@
 package Client;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 public class CFCPackageFactory {
@@ -71,6 +72,16 @@ public class CFCPackageFactory {
         JSONObject object = new JSONObject();
         object.put("Type","Request");
         object.put("Request","Refresh-Lobby");
+        return object.toString();
+    }
+
+    //Create Season Request
+    protected final String create_season_request(String server_name,int capacity){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Create-Season");
+        object.put("Season-Name",server_name);
+        object.put("Season-Capacity",capacity);
         return object.toString();
     }
 

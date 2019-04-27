@@ -1,6 +1,6 @@
 package Server;
 
-import Server.Game.CFGameSeason;
+import Server.Game.CFSeason;
 
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -18,7 +18,7 @@ public class CFServer {
     private ThreadPoolExecutor client_pool;
     private ThreadPoolExecutor incoming_request_pool;
     private ArrayList<CFSClient> clients = new ArrayList<CFSClient>();
-    private ArrayList<CFGameSeason> seasons = new ArrayList<CFGameSeason>();
+    private ArrayList<CFSeason> seasons = new ArrayList<CFSeason>();
     private final int pool_size = 50;
     private final int incoming_pool_size = 5;
 
@@ -89,7 +89,7 @@ public class CFServer {
         return false;
     }
 
-    public ArrayList<CFGameSeason> get_Seasons() {
+    public ArrayList<CFSeason> get_Seasons() {
         return seasons;
     }
 }

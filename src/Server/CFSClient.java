@@ -15,6 +15,8 @@ public class CFSClient {
     private PublicKey publicKeyClassVersion;
     private String username = "";
     private boolean sign_in = false;
+    private boolean admin_access = false;
+
 
     public CFSClient(Socket client, KeyPair keyPair) {
         this.client = client;
@@ -60,5 +62,13 @@ public class CFSClient {
 
     public void set_sign_in(boolean sign_in) {
         this.sign_in = sign_in;
+    }
+
+    public boolean isAdmin_access() {
+        return admin_access;
+    }
+
+    public void setAdmin_access(boolean admin_access) {
+        this.admin_access = admin_access;
     }
 }

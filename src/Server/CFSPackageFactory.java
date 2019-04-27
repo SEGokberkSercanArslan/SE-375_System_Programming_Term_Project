@@ -1,6 +1,6 @@
 package Server;
 
-import Server.Game.CFGameSeason;
+import Server.Game.CFSeason;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -100,14 +100,14 @@ public class CFSPackageFactory {
     }
 
     //Sign-In
-    protected final String confirmation_package_sign_in(ArrayList<CFGameSeason> seasons){
+    protected final String confirmation_package_sign_in(ArrayList<CFSeason> seasons){
         JSONObject object = new JSONObject();
         object.put("Type","Confirmation");
         object.put("Confirmation","Sign-In");
         //Main menu list will come here in Json Array
         JSONArray array = new JSONArray();
-        for (CFGameSeason season : seasons) {
-            array.put(new JSONObject().put("Season", season.get_season_name()).put("Maximum", season.get_max_number_of_players()).put("Current", season.get_current_number_of_players()));
+        for (CFSeason season : seasons) {
+            array.put(new JSONObject().put("Season", season.getSeason_name()).put("Maximum", season.getMax_players()).put("Current", season.getPlayers().size()));
         }
         object.put("Seasons",array);
         return object.toString();
@@ -122,15 +122,43 @@ public class CFSPackageFactory {
     }
 
     //Refresh Lobby Request Response
-    protected final String refresh_lobby_response_package(ArrayList<CFGameSeason> seasons){
+    protected final String refresh_lobby_response_package(ArrayList<CFSeason> seasons){
         JSONObject object = new JSONObject();
         object.put("Type","Response");
         object.put("Response","Refresh");
         JSONArray array = new JSONArray();
-        for (CFGameSeason season : seasons) {
-            array.put(new JSONObject().put("Season", season.get_season_name()).put("Maximum", season.get_max_number_of_players()).put("Current", season.get_current_number_of_players()));
+        for (CFSeason season : seasons) {
+            array.put(new JSONObject().put("Season", season.getSeason_name()).put("Maximum", season.getMax_players()).put("Current", season.getPlayers().size()));
         }
         object.put("Seasons",array);
+        return object.toString();
+    }
+
+    //Create Season Response
+    protected final String confirmation_create_season(CFSeason season){
+        JSONObject object = new JSONObject();
+        object.put("Type","Confirmation");
+        object.put("Confirmation","Create-Season");
+        object.put("Season-Name",season.getSeason_name());
+        JSONArray array = new JSONArray();
+        for (int index = 0; index < season.getPlayers().size(); index++) {
+            array.put(new JSONObject().put("ID",index).put("Player",season.getPlayers().get(index).getUsername()));
+        }
+        object.put("Season-Players",array);
+        return object.toString();
+    }
+
+    //Refresh Season Response
+    protected final String refresh_season_response(CFSeason season){
+        JSONObject object = new JSONObject();
+        object.put("Type","Response");
+        object.put("Response","Refresh-Season");
+        object.put("Season-Name",season.getSeason_name());
+        JSONArray array = new JSONArray();
+        for (int index = 0; index < season.getPlayers().size(); index++) {
+            array.put(new JSONObject().put("ID",index).put("Player",season.getPlayers().get(index).getUsername()));
+        }
+        object.put("Season-Players",array);
         return object.toString();
     }
 

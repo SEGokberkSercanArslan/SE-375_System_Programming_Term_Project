@@ -1,5 +1,6 @@
 package Server;
 
+import Server.Game.CFSeason;
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ public class CFSRequestHandler implements Runnable{
     private CFSClient cfsClient;
     private CFSPackageFactory factory = new CFSPackageFactory();
     private CFSDatabase database = new CFSDatabase();
+    private CFSeason season;
 
     /*Constructor Decelerations*/
     public CFSRequestHandler(Socket client, CFServer server){
@@ -137,8 +139,19 @@ public class CFSRequestHandler implements Runnable{
                     send_json_package(factory.refresh_lobby_response_package(server.get_Seasons()));
                     break;
                 }
-                case "Create-Server":{ //For Admin Request
-                    //Fill Here
+                case "Create-Season":{ //For Admin Request
+                    String season_name = object.get("Season-Name").toString();
+                    String season_cap = object.get("Season-Capacity").toString();
+                    int season_capacity = Integer.parseInt(season_cap);
+                    season = new CFSeason(season_name,season_capacity);
+                    this.cfsClient.setAdmin_access(true);
+                    season.add_player(this.cfsClient);
+                    this.server.get_Seasons().add(season);
+                    send_json_package(factory.confirmation_create_season(season));
+                    break;
+                }
+                case "Refresh-Season":{
+                    send_json_package(factory.refresh_season_response(season));
                     break;
                 }
                 case "Kick-Player":{ //For Admin Request

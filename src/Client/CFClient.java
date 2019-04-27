@@ -146,10 +146,42 @@ public class CFClient {
                 }
 
             }else if (choice.equals("create")){
-                //Create Request Here
+                System.out.print("Season name : ");
+                String season_name = scanner.nextLine();
+                System.out.print("Season Capacity min 4 player required : ");
+                String season_cap = scanner.nextLine();
+                int capacity;
+                if (StringUtils.isNumeric(season_cap)){
+                    capacity = Integer.parseInt(season_cap);
+                    if (capacity >= 4){
+                        send_json_package(factory.create_season_request(season_name,capacity));
+                        String response = input.readUTF();
+                        JSONObject object = new JSONObject(response);
+                        if (object.get("Type").toString().equals("Confirmation")){
+                            if (object.get("Confirmation").toString().equals("Create-Season")){
+                                in_game_season(object,true);
+                            }
+                        }
 
+                    }else {
+                        System.out.println("Wrong Input Type");
+                    }
+                }else {
+                    System.out.println("Wrong Input Type");
+                }
             }else {
                 System.out.println("Wrong Input Type");
+            }
+        }
+    }
+
+    private void in_game_season(JSONObject object, boolean admin_access){
+        boolean in_season = true;
+        while (in_season){
+            if (admin_access){ // If user has admin Access
+
+            }else { // If
+
             }
         }
     }
