@@ -107,6 +107,23 @@ public class CFCPackageFactory {
         return object.toString();
     }
 
+    //Kick Player From Season
+    protected final String kick_player_request(String username){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Kick-Player");
+        object.put("Kick-Player",username);
+        return object.toString();
+    }
+
+    //Close Season Kicked All Players
+    protected final String close_season_request(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Close-Season");
+        return object.toString();
+    }
+
 
 
 }

@@ -166,6 +166,24 @@ public class CFSPackageFactory {
         return object.toString();
     }
 
+    //Player Kicked Notification
+    protected final String player_kicked_notification(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Notification");
+        object.put("Notification","Kicked");
+        object.put("Kicked","You Were Kicked by Season Admin");
+        return object.toString();
+    }
+
+    //Season Closed Confirmation
+    protected final String season_close_confirmation(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Confirmation");
+        object.put("Confirmation","Close-Season");
+        return object.toString();
+    }
+
+
 
 
 

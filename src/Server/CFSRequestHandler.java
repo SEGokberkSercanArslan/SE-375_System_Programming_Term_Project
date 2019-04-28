@@ -159,7 +159,27 @@ public class CFSRequestHandler implements Runnable{
                     break;
                 }
                 case "Kick-Player":{ //For Admin Request
-                    //Fill Here
+                    for (int index = 0; index < season.getPlayers().size(); index++) {
+                        if (season.getPlayers().get(index).getUsername().equals(object.get("Kick-Player").toString())){
+                            DataOutputStream out = new DataOutputStream(season.getPlayers().get(index).getClient().getOutputStream());
+                            season.getPlayers().remove(season.getPlayers().get(index));
+                            out.writeUTF(factory.player_kicked_notification());
+                            send_json_package(factory.refresh_season_response(season));
+                        }
+                    }
+                    break;
+                }
+                case "Close-Season":{
+                    for (int index = 0; index < season.getPlayers().size(); index++) {
+                        if (!season.getPlayers().get(index).equals(cfsClient)){
+                            DataOutputStream stream = new DataOutputStream(season.getPlayers().get(index).getClient().getOutputStream());
+                            stream.writeUTF(factory.player_kicked_notification());
+                        }
+                    }
+                    this.server.get_Seasons().remove(season);
+                    season = null;
+                    cfsClient.setAdmin_access(false);
+                    send_json_package(factory.season_close_confirmation());
                     break;
                 }
                 case "Start-Game":{ //For Admin Request

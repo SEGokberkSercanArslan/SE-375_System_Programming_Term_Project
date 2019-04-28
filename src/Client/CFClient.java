@@ -195,6 +195,7 @@ public class CFClient {
                 System.out.println("For Exit Server : 'exit'");
                 System.out.println("For Kick Player instructions input : 'kick'");
                 Scanner scanner = new Scanner(System.in);
+                System.out.print("Input : ");
                 String choice = scanner.nextLine();
                 switch (choice){
                     case "refresh":{
@@ -212,9 +213,30 @@ public class CFClient {
                         break;
                     }
                     case "exit":{
+                        send_json_package(factory.close_season_request());
+                        JSONObject jsonObject = new JSONObject(input.readUTF());
+                        if (jsonObject.get("Type").toString().equals("Confirmation")){
+                            if (jsonObject.get("Confirmation").toString().equals("Close-Season")){
+                                System.out.println("-----Season Closed-----");
+                                in_season = false;
+                            }
+                        }
                         break;
                     }
                     case "kick":{
+                        System.out.println("Please Input Player ID for Kick : ");
+                        String id = scanner.nextLine();
+                        if (StringUtils.isNumeric(id)){
+                            for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
+                                if (object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString().equals(id)){
+                                    send_json_package(factory.kick_player_request(object.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString()));
+                                    String response = input.readUTF();
+                                    object1 = new JSONObject(response);
+                                }
+                            }
+                        }else {
+                            System.out.println("Wrong input type.");
+                        }
                         break;
                     }
                     default:{
@@ -232,6 +254,7 @@ public class CFClient {
                 System.out.println("For Refresh List input : 'refresh'");
                 System.out.println("For Exit Server : 'exit'");
                 Scanner scanner = new Scanner(System.in);
+                System.out.print("Input : ");
                 String choice = scanner.nextLine();
                 switch (choice){
                     case "refresh":{
