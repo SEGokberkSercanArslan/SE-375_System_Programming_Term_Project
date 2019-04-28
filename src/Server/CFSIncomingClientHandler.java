@@ -20,21 +20,7 @@ public class CFSIncomingClientHandler implements Runnable {
 
     @Override
     public void run() {
-        if (server.is_client_online(client)){
-            /*
-            try {
-
-                server.send_json_package(client,factory.error_already_online());
-                client.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            */
-            System.out.println("Incoming Client Onlie in Incoming Handler *********");
-
-        } else {
-            server.getClient_pool().execute(new CFSRequestHandler(client,server));
-        }
+        server.getClient_pool().execute(new CFSRequestHandler(client,server));
     }
 
 }

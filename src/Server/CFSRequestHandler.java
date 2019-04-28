@@ -4,7 +4,6 @@
 
 package Server;
 
-import Server.Game.CFSeason;
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.json.JSONObject;
@@ -12,13 +11,11 @@ import org.json.JSONObject;
 import javax.crypto.Cipher;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 
 public class CFSRequestHandler implements Runnable{
 
@@ -53,6 +50,9 @@ public class CFSRequestHandler implements Runnable{
                 String request = stream_input.readUTF();
                 decode_request(request);
 
+            } catch (EOFException e){
+                this.server.getClients().remove(this.cfsClient);
+                break;
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -216,7 +216,7 @@ public class CFSRequestHandler implements Runnable{
     private KeyPair keyGenerator() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(1024);
-        KeyPair keyPair = keyPairGenerator.genKeyPair();
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
         return keyPair;
     }
 

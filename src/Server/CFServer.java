@@ -4,8 +4,6 @@
 
 package Server;
 
-import Server.Game.CFSeason;
-
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -96,4 +94,6 @@ public class CFServer {
     public ArrayList<CFSeason> get_Seasons() {
         return seasons;
     }
+
+    public ArrayList<CFSClient> getClients(){return clients;}
 }

@@ -367,10 +367,7 @@ public class CFClient {
     }
 
     private void game_start(){
-        boolean victory = false;
-        while (!victory){
-
-        }
+        System.out.println("In Development");
     }
 
     private void sign_up() throws Exception {
@@ -462,11 +459,9 @@ public class CFClient {
 
     private void get_public_key_if_null() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, Base64DecodingException {
         if (this.publicKey == null){
-            System.out.println("In Public Key Null");
             send_json_package(factory.rsa_public_key_request());
             String json_string = input.readUTF();
             JSONObject object = new JSONObject(json_string);
-            System.out.println(object.toString());
             if (object.get("Type").toString().equals("Response")){
                 if (object.get("Response").toString().equals("RSA-PUB")){
                     byte[] keyPub = base64_byte_converter(object.get("RSA-PUB").toString());                                        //Modify base 64 decoder

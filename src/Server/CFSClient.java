@@ -5,10 +5,9 @@
 package Server;
 
 import java.net.Socket;
-import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 public class CFSClient {
 
