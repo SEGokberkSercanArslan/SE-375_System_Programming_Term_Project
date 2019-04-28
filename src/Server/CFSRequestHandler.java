@@ -187,10 +187,20 @@ public class CFSRequestHandler implements Runnable{
                     break;
                 }
                 case "Join-Server":{ //For Player Request
-                    //Fill Here
+                    String server_name = object.get("Join-Server").toString();
+                    for (int index = 0; index < this.server.get_Seasons().size(); index++) {
+                        if (this.server.get_Seasons().get(index).getSeason_name().equals(server_name)){
+                            season = this.server.get_Seasons().get(index);
+                            season.add_player(this.cfsClient);
+                            send_json_package(factory.join_season_confirmation(season));
+                        }
+                    }
                     break;
                 }
                 case "Leave-Server":{ //For Player Request
+                    this.season.getPlayers().remove(this.cfsClient);
+                    this.season = null;
+                    send_json_package(factory.leave_season_confirmation());
                     //Fill Here
                     break;
                 }

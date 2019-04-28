@@ -183,7 +183,27 @@ public class CFSPackageFactory {
         return object.toString();
     }
 
+    //Join Season Confirmation
+    protected final String join_season_confirmation(CFSeason season){
+        JSONObject object = new JSONObject();
+        object.put("Type","Confirmation");
+        object.put("Confirmation","Join-Server");
+        object.put("Season-Name",season.getSeason_name());
+        JSONArray array = new JSONArray();
+        for (int index = 0; index < season.getPlayers().size(); index++) {
+            array.put(new JSONObject().put("ID",index).put("Player",season.getPlayers().get(index).getUsername()));
+        }
+        object.put("Season-Players",array);
+        return object.toString();
+    }
 
+    //Leave Season Confirmation
+    protected final String leave_season_confirmation(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Confirmation");
+        object.put("Confirmation","Leave-Server");
+        return object.toString();
+    }
 
 
 

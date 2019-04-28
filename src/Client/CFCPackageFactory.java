@@ -124,6 +124,24 @@ public class CFCPackageFactory {
         return object.toString();
     }
 
+    //Join Server Request
+    protected final String join_server_request(String server_name){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Join-Server");
+        object.put("Join-Server",server_name);
+        return object.toString();
+    }
+
+    //Client exit game season (Joined Client)
+    protected final String leave_server_request(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Request");
+        object.put("Request","Leave-Server");
+        return object.toString();
+    }
+
+
 
 
 }

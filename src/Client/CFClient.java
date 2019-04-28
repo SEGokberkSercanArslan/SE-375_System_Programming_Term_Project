@@ -4,6 +4,7 @@
 
 package Client;
 
+import Server.UserStatus;
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -107,9 +108,9 @@ public class CFClient {
         boolean sign_in = true;
         JSONArray season_list = seasons;
         while (sign_in){
-            System.out.println("Active Server.Game Seasons Listed Bellow");
+            System.out.println("Active Game Seasons Listed Bellow");
             for (int index = 0; index < season_list.length(); index++) {
-                System.out.println("ID : " + index + " Server.Game : " + season_list.getJSONObject(index).get("Season").toString() +
+                System.out.println("ID : " + index + " Game : " + season_list.getJSONObject(index).get("Season").toString() +
                         " Current Players : " + season_list.getJSONObject(index).get("Current").toString() +
                         " Maximum : " + season_list.getJSONObject(index).get("Maximum").toString() );
             }
@@ -118,10 +119,12 @@ public class CFClient {
             System.out.println("For Create Server input : 'create'");
             System.out.println("For Join Server input : Server ID");
             Scanner scanner = new Scanner(System.in);
+            System.out.print("Input : ");
             String choice = scanner.nextLine();
             if (StringUtils.isNumeric(choice)){
-                //Server Join Request Here
-
+                send_json_package(factory.join_server_request(season_list.getJSONObject(Integer.parseInt(choice)).get("Season").toString()));
+                JSONObject response = new JSONObject(input.readUTF());
+                in_game_season(response,false);
             }else if (choice.equals("sign-out")){
                 //Sign Out Request Here
                 send_json_package(factory.sign_out_request());
@@ -229,7 +232,8 @@ public class CFClient {
                         if (StringUtils.isNumeric(id)){
                             for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
                                 if (object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString().equals(id)){
-                                    send_json_package(factory.kick_player_request(object.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString()));
+                                    System.out.println(object1);
+                                    send_json_package(factory.kick_player_request(object1.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString()));
                                     String response = input.readUTF();
                                     object1 = new JSONObject(response);
                                 }
@@ -245,7 +249,56 @@ public class CFClient {
                 }
 
             }else { // If player join server and dont have admin access
-                System.out.println("You are in season : " + object1.get("Season-Name") + " as Admin Rights");
+
+                Runnable member = new Runnable() {
+                    @Override
+                    public void run() {
+                        while (UserStatus.isStatus_thread()){
+                            try {
+                                JSONObject response = new JSONObject(input.readUTF());
+                                switch (response.get("Type").toString()){
+                                    case "Notification":{
+                                        if (response.get("Notification").toString().equals("Kicked")){
+                                            System.out.println("You Were Kicked by Admin for return lobby input anything.");
+                                            UserStatus.setKicked(true);
+                                            UserStatus.setStatus_thread(false);
+                                        }
+                                        break;
+                                    }
+                                    case "Response":{
+                                        //Fill Here for response refresh
+                                        System.out.println("You are in season : " + response.get("Season-Name") + " as Admin Rights");
+                                        System.out.println("Current Players listed bellow");
+                                        for (int index = 0; index < response.getJSONArray("Season-Players").length(); index++) {
+                                            System.out.println("ID : " + response.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString() +
+                                                    " Player : " + response.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString());
+                                        }
+                                        System.out.println("For Refresh List input : 'refresh'");
+                                        System.out.println("For Exit Server : 'exit'");
+                                        break;
+                                    }
+                                    case "Confirmation":{
+                                        if (response.get("Confirmation").toString().equals("Leave-Server")){
+                                            UserStatus.setOut(true);
+                                            UserStatus.setStatus_thread(false);
+                                            System.out.println("You were disconnected server please input anything for continue.");
+                                        }
+                                        break;
+                                    }
+                                }
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                };
+
+                Thread status_checker = new Thread(member);
+                status_checker.setDaemon(true);
+                status_checker.start();
+
+                System.out.println("You are in season : " + object1.get("Season-Name"));
                 System.out.println("Current Players listed bellow");
                 for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
                     System.out.println("ID : " + object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString() +
@@ -258,16 +311,38 @@ public class CFClient {
                 String choice = scanner.nextLine();
                 switch (choice){
                     case "refresh":{
-                        send_json_package(factory.refresh_season_request(object1.get("Season-Name").toString()));
-                        object1 = new JSONObject(input.readUTF());
-                        break;
+                        if (!UserStatus.isKicked() && !UserStatus.isOut()){
+                            send_json_package(factory.refresh_season_request(object1.get("Season-Name").toString()));
+                        }else if (UserStatus.isOut()){
+                            in_season = false;
+                        }else {
+                            System.out.println("You Were Kicked by Admin");
+                            in_season = false;
+                        }
+
                     }
                     case "exit":{
+                        if (!UserStatus.isKicked() && !UserStatus.isOut()){
+                            send_json_package(factory.leave_server_request());
+                        }else if (UserStatus.isOut()){
+                            in_season = false;
+                        }else {
+                            System.out.println("You Were Kicked by Admin");
+                            in_season = false;
+                        }
 
                         break;
                     }
                     default:{
-                        System.out.println("Wrong input type.");
+                        if (!UserStatus.isKicked() && !UserStatus.isOut()){
+                            System.out.println("Wrong input type.");
+                        }else if (UserStatus.isOut()){
+                            in_season = false;
+                        }else {
+                            System.out.println("You Were Kicked by Admin");
+                            in_season = false;
+                        }
+                        break;
                     }
                 }
             }
