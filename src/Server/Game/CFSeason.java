@@ -23,7 +23,7 @@ public class CFSeason {
     }
 
     public void add_player(CFSClient player){
-        if (players.size() < max_players){
+        if (players.size() <= max_players){
             players.add(player);
         }
     }

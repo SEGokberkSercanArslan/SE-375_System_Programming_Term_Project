@@ -124,7 +124,11 @@ public class CFClient {
             if (StringUtils.isNumeric(choice)){
                 send_json_package(factory.join_server_request(season_list.getJSONObject(Integer.parseInt(choice)).get("Season").toString()));
                 JSONObject response = new JSONObject(input.readUTF());
-                in_game_season(response,false);
+                if (response.get("Type").toString().equals("Confirmation")){
+                    in_game_season(response,false);
+                }else if (response.get("Type").toString().equals("Error")){
+                    System.out.println("Error : " + response.get("Error").toString());
+                }
             }else if (choice.equals("sign-out")){
                 //Sign Out Request Here
                 send_json_package(factory.sign_out_request());
@@ -155,12 +159,12 @@ public class CFClient {
             }else if (choice.equals("create")){
                 System.out.print("Season name : ");
                 String season_name = scanner.nextLine();
-                System.out.print("Season Capacity min 4 player required : ");
+                System.out.print("Season Capacity min:4 , max:10 player required : ");
                 String season_cap = scanner.nextLine();
                 int capacity;
                 if (StringUtils.isNumeric(season_cap)){
                     capacity = Integer.parseInt(season_cap);
-                    if (capacity >= 4){
+                    if (capacity >= 4 && capacity <= 10){
                         send_json_package(factory.create_season_request(season_name,capacity));
                         String response = input.readUTF();
                         JSONObject object = new JSONObject(response);
@@ -171,7 +175,7 @@ public class CFClient {
                         }
 
                     }else {
-                        System.out.println("Wrong Input Type");
+                        System.out.println("Wrong Capacity Input.");
                     }
                 }else {
                     System.out.println("Wrong Input Type");
@@ -185,6 +189,7 @@ public class CFClient {
     private void in_game_season(JSONObject object, boolean admin_access) throws IOException {
         boolean in_season = true;
         JSONObject object1 = object;
+        UserStatus.setStatus_thread(true);
         while (in_season){
             if (admin_access){ // If user has admin Access
                 System.out.println("You are in season : " + object1.get("Season-Name") + " as Admin Rights");
@@ -230,14 +235,19 @@ public class CFClient {
                         System.out.println("Please Input Player ID for Kick : ");
                         String id = scanner.nextLine();
                         if (StringUtils.isNumeric(id)){
-                            for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
-                                if (object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString().equals(id)){
-                                    System.out.println(object1);
-                                    send_json_package(factory.kick_player_request(object1.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString()));
-                                    String response = input.readUTF();
-                                    object1 = new JSONObject(response);
+                            if (!id.equals("0")){
+                                for (int index = 0; index < object1.getJSONArray("Season-Players").length(); index++) {
+                                    if (object1.getJSONArray("Season-Players").getJSONObject(index).get("ID").toString().equals(id)){
+                                        System.out.println(object1);
+                                        send_json_package(factory.kick_player_request(object1.getJSONArray("Season-Players").getJSONObject(index).get("Player").toString()));
+                                        String response = input.readUTF();
+                                        object1 = new JSONObject(response);
+                                    }
                                 }
+                            }else {
+                                System.out.println("You Cannot Kick Yourself !");
                             }
+
                         }else {
                             System.out.println("Wrong input type.");
                         }
@@ -283,6 +293,13 @@ public class CFClient {
                                             UserStatus.setStatus_thread(false);
                                             System.out.println("You were disconnected server please input anything for continue.");
                                         }
+                                        break;
+                                    }
+                                    case "Game":{
+                                        System.out.println("Game Starting Please input anything to continue ..");
+                                        //Here Game function will come here
+                                        UserStatus.setOut(true);
+                                        UserStatus.setStatus_thread(false);
                                         break;
                                     }
                                 }
@@ -346,6 +363,13 @@ public class CFClient {
                     }
                 }
             }
+        }
+    }
+
+    private void game_start(){
+        boolean victory = false;
+        while (!victory){
+
         }
     }
 

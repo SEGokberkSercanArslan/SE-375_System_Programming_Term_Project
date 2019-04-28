@@ -197,6 +197,14 @@ public class CFSPackageFactory {
         return object.toString();
     }
 
+    //Join season Error
+    protected final String join_season_error_over_size(){
+        JSONObject object = new JSONObject();
+        object.put("Type","Error");
+        object.put("Error","Capacity Reach");
+        return object.toString();
+    }
+
     //Leave Season Confirmation
     protected final String leave_season_confirmation(){
         JSONObject object = new JSONObject();

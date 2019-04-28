@@ -3,6 +3,9 @@
     <output-path>$PROJECT_DIR$/out/artifacts/SE_375_TermProject_jar</output-path>
     <root id="archive" name="SE-375-TermProject.jar">
       <element id="module-output" name="SE-375-TermProject" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/Dependencies/json-20180813.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/Dependencies/sqlite-jdbc-3.23.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/Dependencies/commons-lang3-3.8.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

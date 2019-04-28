@@ -189,10 +189,13 @@ public class CFSRequestHandler implements Runnable{
                 case "Join-Server":{ //For Player Request
                     String server_name = object.get("Join-Server").toString();
                     for (int index = 0; index < this.server.get_Seasons().size(); index++) {
-                        if (this.server.get_Seasons().get(index).getSeason_name().equals(server_name)){
+                        if (this.server.get_Seasons().get(index).getSeason_name().equals(server_name) && this.server.get_Seasons().get(index).getPlayers().size() < this.server.get_Seasons().get(index).getMax_players()){
                             season = this.server.get_Seasons().get(index);
                             season.add_player(this.cfsClient);
                             send_json_package(factory.join_season_confirmation(season));
+                        }
+                        else {
+                            send_json_package(factory.join_season_error_over_size());
                         }
                     }
                     break;
